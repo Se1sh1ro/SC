@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лекции | Claude API Course</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* ===== СВЕТЛАЯ ТЕМА (по умолчанию) ===== */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa, #eef2f7); 
+            min-height: 100vh; 
+            color: #1a1a2e; 
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* ===== ТЁМНАЯ ТЕМА ===== */
+        body.dark-theme {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+        }
+        
+        body.dark-theme .lecture-card {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-theme .lecture-card:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        
+        body.dark-theme .lecture-content {
+            border-top-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-theme .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        body.dark-theme header {
+            background: rgba(15, 12, 41, 0.95);
+            border-bottom-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-theme .logo i {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme nav a {
+            color: #fff;
+        }
+        
+        body.dark-theme .page-header h1 {
+            background: linear-gradient(135deg, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme footer {
+            border-top-color: rgba(255,255,255,0.05);
+        }
+        
+        body.dark-theme .lecture-content code,
+        body.dark-theme .lecture-content pre {
+            background: rgba(0,0,0,0.4);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        header { padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.1); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); transition: all 0.3s; }
+        header .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo i { font-size: 2.2rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logo h1 { font-size: 1.5rem; font-weight: 700; }
+        .logo p { font-size: 0.7rem; opacity: 0.7; }
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { color: #1a1a2e; text-decoration: none; font-weight: 500; transition: all 0.3s; }
+        nav a:hover { color: #667eea; }
+        nav a.active { color: #667eea; position: relative; }
+        nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 2px; background: linear-gradient(135deg, #667eea, #764ba2); }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: all 0.3s;
+            color: #1a1a2e;
+        }
+        
+        body.dark-theme .theme-toggle {
+            color: #fff;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(0,0,0,0.1);
+            transform: scale(1.05);
+        }
+        
+        .page-header { text-align: center; padding: 40px 0 30px; }
+        .page-header h1 { font-size: 2.5rem; background: linear-gradient(135deg, #1a1a2e, #667eea); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .lectures-grid { display: flex; flex-direction: column; gap: 25px; padding: 20px 0 60px; }
+        .lecture-card { background: white; border-radius: 20px; border: 1px solid #eee; overflow: hidden; transition: all 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .lecture-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .lecture-header { display: flex; align-items: center; padding: 20px 25px; cursor: pointer; }
+        .lecture-number { width: 50px; height: 50px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.3rem; margin-right: 20px; color: white; }
+        .lecture-title { flex: 1; }
+        .lecture-title h3 { font-size: 1.2rem; margin-bottom: 5px; }
+        .lecture-title p { opacity: 0.6; font-size: 0.85rem; }
+        .lecture-icon { color: #667eea; transition: transform 0.3s; }
+        .lecture-content { max-height: 0; overflow: hidden; transition: max-height 0.8s ease; }
+        .lecture-card.active .lecture-content { max-height: 5000px; padding: 20px 25px 25px 25px; border-top: 1px solid #eee; }
+        .lecture-card.active .lecture-icon { transform: rotate(180deg); }
+        .lecture-content p { line-height: 1.6; opacity: 0.85; margin-bottom: 12px; text-align: justify; }
+        .lecture-content ul, .lecture-content ol { margin: 10px 0 10px 30px; opacity: 0.85; }
+        .lecture-content h4 { color: #667eea; margin: 20px 0 10px 0; font-size: 1.1rem; }
+        .lecture-content code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        .lecture-content pre { background: #f5f5f5; padding: 15px; border-radius: 10px; overflow-x: auto; margin: 15px 0; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap; }
+        
+        .lab-buttons-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; background: #f9f9f9; border-radius: 15px; padding: 20px; }
+        body.dark-theme .lab-buttons-section { background: rgba(255,255,255,0.03); border-top-color: rgba(255,255,255,0.1); }
+        .lab-buttons-title { font-size: 1rem; color: #f5576c; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .lab-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+        .lab-link-btn { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 10px 20px; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: all 0.3s; }
+        .lab-link-btn:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(240,147,251,0.4); }
+        
+        footer { padding: 40px 0; border-top: 1px solid rgba(0,0,0,0.05); text-align: center; }
+        footer p { opacity: 0.5; font-size: 0.85rem; }
+        
+        @media (max-width: 768px) { 
+            header .container { flex-direction: column; text-align: center; } 
+            nav ul { justify-content: center; gap: 1.5rem; }
+            .lecture-header { flex-wrap: wrap; }
+            .lecture-number { margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><i class="fas fa-brain"></i><div><h1>Claude API </h1><p>Программирование приложений на основе больших языковых моделей </p></div></div>
+           <nav><ul><li><a href="index.html" class="active">Главная</a></li><li><a href="lect.html">Лекции</a></li><li><a href="lab.html">Лабораторные</a></li><li><a href="test.html">Тест</a></li></ul></nav>
+		   <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="page-header"><h1>📖 Лекционный курс</h1><p>6 лекций по Claude API</p></div>
+            <div class="lectures-grid">
+                
+                <!-- ЛЕКЦИЯ 1 -->
+                <div class="lecture-card">
+                    <div class="lecture-header" onclick="toggleLecture(this)">
+                        <div class="lecture-number">01</div>
+                        <div class="lecture-title"><h3>Лекция 1. Введение в Claude API и подготовка рабочей среды</h3><p>Понятие API, характеристики моделей Claude 3, настройка виртуального окружения</p></div>
+                        <div class="lecture-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="lecture-content">
+                        <h4>Цель лекции:</h4>
+                        <p>Сформировать понимание назначения программного интерфейса API в контексте больших языковых моделей, ознакомить с процедурой регистрации в Anthropic Console, получением API-ключа и настройкой среды разработки на Python для выполнения первых запросов к Claude API.</p>
+                        
+                        <h4>Ключевые вопросы:</h4>
+                        <ol>
+                            <li>Понятие программного интерфейса API и его роль в доступе к LLM.</li>
+                            <li>Характеристики моделей семейства Claude 3 (Haiku, Sonnet, Opus).</li>
+                            <li>Настройка виртуального окружения Python и установка необходимых библиотек.</li>
+                        </ol>
+                        
+                        <h4>1. Понятие программного интерфейса API</h4>
+                        <p>В современной разработке программного обеспечения значительная часть вычислительных ресурсов предоставляется через сетевые интерфейсы. <strong>API (Application Programming Interface)</strong> представляет собой набор правил, протоколов и инструментов, посредством которых одна программная система взаимодействует с другой. В контексте облачных сервисов API определяет структуру запросов к удалённому серверу, формат передаваемых данных и спецификацию ответов.</p>
+                        <p>API выполняет функцию посредника между клиентским приложением и сервером, на котором выполняются ресурсоёмкие вычисления. Клиентский код формирует запрос в соответствии со спецификацией, отправляет его по сети, а сервер обрабатывает запрос и возвращает результат. Весь процесс является асинхронным и требует соблюдения протокола передачи данных (обычно HTTP/HTTPS).</p>
+                        <p><strong>Claude API</strong> — это официальный программный интерфейс компании Anthropic, обеспечивающий доступ к семейству больших языковых моделей Claude. Через данный интерфейс доступны следующие операции: отправка текстовых запросов и получение ответов, управление параметрами генерации (температура, максимальная длина), ведение многооборотных диалогов с сохранением истории сообщений.</p>
+                        
+						<img src="images/img1.png" style="max-width: 100%; border-radius: 10px; margin: 15px 0;">
+						
+                        <h4>2. Характеристики моделей семейства Claude 3</h4>
+                        <p>Семейство Claude включает три модели, различающиеся по скорости генерации, качеству ответов, стоимости и областям применения. Выбор конкретной модели определяется требованиями задачи и доступным бюджетом.</p>
+                        <p><strong>Claude Haiku</strong> является самой быстрой и доступной моделью семейства. Время генерации ответа составляет от 0.5 до 1 секунды, что делает её пригодной для систем реального времени и интерактивных приложений. Качество ответов оценивается как хорошее — достаточное для большинства учебных и прототипных задач. Рекомендуемые области применения: прототипирование, массовая обработка запросов, учебные проекты, чат-боты с высокими требованиями к скорости ответа.</p>
+                        <p><strong>Claude Sonnet</strong> занимает промежуточное положение между скоростью и качеством. Время генерации ответа составляет от 1 до 3 секунд. Качество ответов оценивается как высокое, что позволяет использовать модель для задач, требующих глубокого понимания контекста и точности формулировок. Рекомендуемые области применения: аналитика, суммаризация документов, проверка программного кода, извлечение структурированной информации из текстов.</p>
+                        <p><strong>Claude Opus</strong> является наиболее мощной, но самой медленной моделью семейства. Время генерации ответа составляет от 3 до 10 секунд. Качество ответов оценивается как лучшее среди всех доступных моделей, что достигается за счёт большего количества параметров и более сложной архитектуры. Рекомендуемые области применения: научные исследования, сложные логические задачи, многошаговый анализ, задачи, требующие максимальной точности и глубины рассуждений.</p>
+                        
+						<img src="images/img2.png" style="max-width: 100%; border-radius: 10px; margin: 15px 0;">
+						
+                        <h4>3. Настройка среды разработки</h4>
+                        <p>Для работы с Claude API требуется язык программирования Python версии 3.9 или выше. Проверка установленной версии выполняется в терминале командой <code>python --version</code>. В случае отсутствия Python или наличия более ранней версии следует загрузить актуальный дистрибутив с официального сайта <a href="https://python.org" style="color: #a78bfa;">python.org</a>.</p>
+                        <p>Центральным элементом организации проекта является <strong>виртуальное окружение</strong> (virtual environment). Виртуальное окружение позволяет изолировать зависимости конкретного проекта от глобальной системы Python, предотвращая конфликты версий библиотек между различными проектами. Для создания виртуального окружения в терминале необходимо перейти в директорию, где будет размещён проект, и выполнить команду <code>python -m venv venv</code>. Параметр <code>venv</code> после ключа <code>-m</code> указывает на название встроенного модуля, а второй <code>venv</code> задаёт имя директории, в которую будет помещено окружение.</p>
+                        <p>Активация виртуального окружения выполняется разными командами в зависимости от операционной системы.</p>
+                        <p>Для Windows используется команда <code>venv\Scripts\activate</code></p>
+                        <p>Для macOS и Linux — <code>source venv/bin/activate</code>.</p>
+                        <p>Успешная активация подтверждается появлением префикса <code>(venv)</code> в начале строки терминала.</p>
+                        <p>Для взаимодействия с Claude API необходима установка официального Software Development Kit (SDK) от Anthropic. В активированном виртуальном окружении следует выполнить команду <code>pip install anthropic</code>. Данная библиотека предоставляет высокоуровневый интерфейс для формирования запросов и обработки ответов, скрывая детали низкоуровневого HTTP-взаимодействия. Дополнительно устанавливается библиотека <code>python-dotenv</code> командой <code>pip install python-dotenv</code>, которая обеспечивает загрузку переменных окружения из файла <code>.env</code>.</p>
+                        <p>Для начала работы с кодом необходимо создать файл скрипта. В корневой директории проекта следует создать файл с расширением <code>.py</code>, например <code>first_request.py</code>. Этот файл будет содержать программу, отправляющую запрос к Claude API и выводящую полученный ответ. Также в той же директории создаётся файл <code>.env</code> — в нём будет храниться API-ключ в зашифрованном от системы контроля версий виде. Файл <code>.env</code> открывается в любом текстовом редакторе, и в него записывается строка <code>ANTHROPIC_API_KEY=sk-ant-api03-ваш_ключ</code>. Важно: файл <code>.env</code> не должен попадать в системы контроля версий (например, Git), поэтому создаётся файл <code>.gitignore</code>, в который добавляется строка <code>.env</code>. Это предотвращает случайную публикацию секретного ключа в открытом доступе.</p>
+                        <p>При первом открытии файла <code>first_request.py</code> в интегрированной среде разработки (IDE), такой как Visual Studio Code, PyCharm или даже обычный текстовый редактор, перед студентом предстаёт пустой файл, который предстоит наполнить кодом. Структура простейшего скрипта включает следующие обязательные элементы: импорт библиотек (os, dotenv, anthropic), загрузка переменной окружения из файла <code>.env</code>, инициализация клиента, отправка запроса с указанием параметров модели и вывод ответа. Все инструкции внутри скрипта выполняются последовательно, сверху вниз. Каждая инструкция, как правило, располагается на отдельной строке. Символ <code>#</code> используется для добавления комментариев — текст после него игнорируется интерпретатором и служит для пояснения кода.</p>
+                        
+                        <h4>Выводы по лекции 1</h4>
+                        <ul>
+                            <li>API (Application Programming Interface) — набор правил, обеспечивающий взаимодействие между программами и удалённый доступ к большим языковым моделям.</li>
+                            <li>Anthropic Console — центр управления ключами доступа и кредитами. API-ключ следует хранить в файле .env и не публиковать в открытых репозиториях.</li>
+                            <li>Семейство Claude 3 включает три модели: Haiku (самая быстрая для учебных целей), Sonnet (высокое качество, для аналитики), Opus (максимальное качество, для исследований).</li>
+                            <li>Виртуальное окружение Python изолирует зависимости проекта. Активация подтверждается префиксом (venv) в терминале.</li>
+                        </ul>
+                        
+                        <div class="lab-buttons-section">
+                            <div class="lab-buttons-title"><i class="fas fa-flask"></i> Лабораторные работы к лекции:</div>
+                            <div class="lab-buttons">
+                                <a href="lab1.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №1: Регистрация и настройка среды</a>
+                                <a href="lab2.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №2: Первый запрос к Claude API</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЛЕКЦИЯ 2 -->
+                <div class="lecture-card">
+                    <div class="lecture-header" onclick="toggleLecture(this)">
+                        <div class="lecture-number">02</div>
+                        <div class="lecture-title"><h3>Лекция 2. Структура запроса: параметры model, max_tokens и messages</h3><p>Выбор модели, управление длиной ответа, организация диалога</p></div>
+                        <div class="lecture-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="lecture-content">
+                        <h4>Цель лекции:</h4>
+                        <p>Изучить три основных параметра запроса к Claude API — выбор модели (model), управление длиной ответа (max_tokens) и организацию диалога (messages), — а также освоить практические навыки их применения.</p>
+                        
+                        <h4>Ключевые вопросы:</h4>
+                        <ol>
+                            <li>Характеристики и критерии выбора моделей Haiku, Sonnet, Opus.</li>
+                            <li>Понятие токена и его соотношение с объёмом текста на разных языках.</li>
+                            <li>Различие между контекстным окном (200K) и параметром max_tokens.</li>
+                            <li>Рекомендуемые значения max_tokens для различных типов задач.</li>
+                            <li>Структура параметра messages: роли user и assistant.</li>
+                            <li>Построение многооборотных диалогов с передачей истории сообщений.</li>
+                        </ol>
+                        
+                        <h4>1. Параметр model: выбор версии Claude</h4>
+                        <p>Параметр <code>model</code> определяет, какая именно версия Claude вызывается. Компания Anthropic предлагает три модели в семействе Claude 3, различающиеся по скорости, качеству ответов и стоимости (<strong>Haiku, Sonnet, Opus</strong>).</p>
+                        <p>Формат указания модели: <code>"claude-3-haiku-20240307"</code>, где <code>haiku</code> — имя модели, а <code>20240307</code> — дата версии (7 марта 2024 года). Следует использовать актуальную дату, указанную в документации Anthropic.</p>
+                        <p>Для учебных целей оптимальным выбором является модель Haiku. Она обеспечивает достаточное качество для 90% учебных задач.</p>
+                        
+                        <h4>2. Параметр max_tokens: бюджет ответа</h4>
+                        <p>Параметр <code>max_tokens</code> задаёт максимальное количество токенов, которое модель может сгенерировать в ответе.</p>
+                        <p><strong>Токен</strong> — это минимальная единица текста для модели. На русском языке один токен соответствует примерно 0.5-0.6 слова. Например, слово «привет» кодируется одним токеном, слово «достопримечательность» — тремя-четырьмя токенами.</p>
+						
+						<img src="images/tokeniz.png" style="max-width: 100%; border-radius: 10px; margin: 15px 0;">
+						
+                        <p><strong>Важное различие.</strong> Контекстное окно (200 000 токенов) определяет, сколько токенов можно <strong>отправить</strong> модели. Параметр <code>max_tokens</code> определяет, сколько токенов модель может <strong>вернуть</strong>. Это различные, не связанные друг с другом ограничения.</p>
+                        <p>Значение <code>max_tokens</code> может принимать целые числа от 1 до 4096. При установке слишком малого значения ответ будет обрезан на полуслове без какого-либо предупреждения со стороны API.</p>
+                        <p><strong>Рекомендуемые значения:</strong></p>
+                        <ul>
+                            <li>Для ответа «да» или «нет» — 10-20 токенов</li>
+                            <li>Для короткого ответа (одно предложение) — 50-100 токенов</li>
+                            <li>Для типичного ответа на учебный вопрос — 300-500 токенов</li>
+                            <li>Для развёрнутого объяснения — 1000-1500 токенов</li>
+                            <li>Для эссе или анализа — 2000-4000 токенов</li>
+                        </ul>
+                        
+                        <h4>3. Параметр messages: структура диалога</h4>
+                        <p>Параметр <code>messages</code> является центральным элементом любого запроса к Claude API. Он содержит <strong>список сообщений</strong>, образующих диалог между пользователем и моделью.</p>
+                        <p>Каждое сообщение представляет собой словарь (объект) с двумя обязательными ключами:</p>
+                        <ul>
+                            <li><code>role</code> — отправитель сообщения. Принимает значения <code>"user"</code> (пользователь) или <code>"assistant"</code> (модель)</li>
+                            <li><code>content</code> — текстовое содержимое сообщения</li>
+                        </ul>
+                        <p><strong>Простейший пример (один запрос без истории):</strong></p>
+                        <pre><code>messages = [
+    {"role": "user", "content": "Сколько планет в Солнечной системе?"}
+]</code></pre>
+                        <p><strong>Пример с учётом предыдущего ответа (история диалога):</strong></p>
+                        <pre><code>messages = [
+    {"role": "user", "content": "Как звали первого человека в космосе?"},
+    {"role": "assistant", "content": "Первым человеком в космосе был Юрий Гагарин."},
+    {"role": "user", "content": "А в каком году это произошло?"}
+]</code></pre>
+                        <p>Модель учитывает всю переданную историю. Вопрос «А в каком году» интерпретируется в контексте предыдущего ответа о Гагарине.</p>
+                        <p><strong>Важное свойство.</strong> Claude не сохраняет состояние между вызовами API. Каждый вызов <code>client.messages.create()</code> является независимым. Всю историю предыдущих сообщений должен хранить и передавать разработчик. Это сделано для обеспечения полного контроля разработчика над тем, какую информацию модель «помнит».</p>
+                        <p><strong>Пример полного запроса с параметрами model, max_tokens и messages:</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=500,
+    messages=[
+        {"role": "user", "content": "Назови три основные причины, по которым стоит изучать программирование"}
+    ]
+)</code></pre>
+                        
+                        <h4>Выводы по лекции 2</h4>
+                        <ul>
+                            <li>Параметр model определяет версию Claude: Haiku, Sonnet или Opus</li>
+                            <li>Параметр max_tokens задаёт максимальную длину ответа в токенах. Один токен на русском языке соответствует примерно 0.5-0.6 слова. Значение выбирается от 10-20 (короткие ответы) до 2000-4000 (развёрнутые эссе).</li>
+                            <li>Контекстное окно (200K токенов) и max_tokens (максимум 4096) — различные параметры. Первый определяет объём входных данных, второй — объём ответа.</li>
+                            <li>Параметр messages организует диалог через список сообщений с ролями user (пользователь) и assistant (модель).</li>
+                            <li>Claude не сохраняет состояние между вызовами. Вся история диалога должна явно передаваться в каждом запросе.</li>
+                            <li>Чередование ролей является обязательным требованием: за сообщением user должен следовать ответ assistant.</li>
+                        </ul>
+                        
+                        <div class="lab-buttons-section">
+                            <div class="lab-buttons-title"><i class="fas fa-flask"></i> Лабораторные работы к лекции:</div>
+                            <div class="lab-buttons">
+                                <a href="lab3.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №3: Эксперименты с model, max_tokens и messages</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЛЕКЦИЯ 3 -->
+                <div class="lecture-card">
+                    <div class="lecture-header" onclick="toggleLecture(this)">
+                        <div class="lecture-number">03</div>
+                        <div class="lecture-title"><h3>Лекция 3. Управление случайностью: temperature и top_p</h3><p>Контроль креативности, ядерная выборка, рекомендации по выбору значений</p></div>
+                        <div class="lecture-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="lecture-content">
+                        <h4>Цель лекции:</h4>
+                        <p>Изучить параметры, управляющие случайностью и разнообразием генерации ответов модели (temperature и top_p), освоить выбор значений в зависимости от типа задачи.</p>
+                        
+                        <h4>Ключевые вопросы:</h4>
+                        <ol>
+                            <li>Принцип работы параметра temperature и его влияние на распределение вероятностей токенов.</li>
+                            <li>Диапазон значений temperature и рекомендации для различных типов задач.</li>
+                            <li>Принцип работы параметра top_p (nucleus sampling).</li>
+                            <li>Сравнение temperature и top_p, рекомендации по совместному использованию.</li>
+                            <li>Практические примеры настройки параметров для разных задач.</li>
+                        </ol>
+                        
+                        <h4>1. Параметр temperature: контроль креативности</h4>
+                        <p>Параметр <code>temperature</code> определяет степень случайности при выборе следующего токена в процессе генерации. При низкой температуре модель почти всегда выбирает наиболее вероятный следующий токен. При высокой температуре чаще выбираются менее вероятные, неожиданные варианты.</p>
+                        <p><strong>Принцип работы.</strong> Для каждого следующего токена модель вычисляет вероятности всех возможных вариантов. При <code>temperature = 0</code> выбирается токен с максимальной вероятностью (детерминированный выбор). При <code>temperature > 0</code> вероятности «сглаживаются»: чем выше температура, тем более равномерным становится распределение, и тем выше шанс выбора менее вероятных токенов.</p>
+                        <p><strong>Диапазон значений и практические рекомендации:</strong></p>
+                        <ul>
+                            <li><strong>0.0-0.2</strong> — максимальная детерминированность. При одинаковом запросе ответы будут почти идентичными. Применяется для фактологических вопросов, извлечения данных из документов, генерации программного кода.</li>
+                            <li><strong>0.3-0.5</strong> — баланс между точностью и естественностью. Ответы становятся более «живыми», но не уходят в область фантазий. Применяется для чат-ботов, ответов на общие вопросы, консультационных систем.</li>
+                            <li><strong>0.6-0.8</strong> — креативный режим. Модель генерирует неожиданные, оригинальные ответы. Применяется для мозговых штурмов, генерации идей, написания художественных текстов.</li>
+                            <li><strong>0.9-1.0</strong> — высокая случайность. Ответы могут быть странными, нелогичными. Применяется только для художественных экспериментов.</li>
+                        </ul>
+						
+						<img src="images/temp.png" style="max-width: 100%; border-radius: 10px; margin: 15px 0;">
+						
+                        <p><strong>Экспериментальное задание.</strong> Для одного и того же запроса, например «Придумай необычное название для кафе», следует выполнить три запуска с <code>temperature = 0.0</code> и три запуска с <code>temperature = 0.8</code>. При нулевой температуре названия будут повторяться или быть очень похожими. При высокой — каждый раз различными.</p>
+                        
+                        <h4>2. Параметр top_p: ядерная выборка</h4>
+                        <p>Параметр <code>top_p</code> (nucleus sampling) решает аналогичную задачу управления разнообразием, но использует иной механизм. Вместо «сглаживания» вероятностей, <code>top_p</code> ограничивает набор токенов, из которых производится выбор.</p>
+                        <p><strong>Принцип работы.</strong> Модель сортирует все возможные следующие токены по убыванию вероятности. Затем последовательно суммируются вероятности, начиная с наибольшей, до тех пор, пока сумма не достигнет значения <code>top_p</code>. Все токены, вошедшие в эту сумму, образуют «ядро» (nucleus). Выбор следующего токена производится только из этого ядра.</p>
+                        <p><strong>Пример с <code>top_p = 0.9</code>.</strong> Модель вычислила вероятности токенов: A: 0.5, B: 0.3, C: 0.1, D: 0.05, E: 0.03, F: 0.02. Суммирование: 0.5 + 0.3 + 0.1 = 0.9 (останавливаемся). Модель будет выбирать только из токенов A, B, C. Токены D, E, F исключаются из рассмотрения.</p>
+                        <p><strong>Рекомендации по использованию.</strong></p>
+                        <ul>
+                            <li>Следует использовать либо <code>temperature</code>, либо <code>top_p</code>, но не оба одновременно. Совместное применение даёт непредсказуемый эффект.</li>
+                            <li>Документация Anthropic рекомендует настраивать только <code>temperature</code>, оставляя <code>top_p = 1.0</code> (значение по умолчанию, означающее «рассматривать все токены»).</li>
+                            <li>Переход к настройке <code>top_p</code> целесообразен только при наличии специфических требований к распределению вероятностей. Для учебных задач это обычно не требуется.</li>
+                        </ul>
+                        
+                        <h4>3. Примеры использования разной температуры</h4>
+                        <p><strong>Пример 1. Низкая температура (0.1) для точного ответа</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=200,
+    temperature=0.1,
+    messages=[
+        {"role": "user", "content": "Назови год основания Санкт-Петербурга"}
+    ]
+)</code></pre>
+                        <p>Ожидается точный, детерминированный ответ: «1703».</p>
+                        <p><strong>Пример 2. Средняя температура (0.5) для естественного диалога</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=300,
+    temperature=0.5,
+    messages=[
+        {"role": "user", "content": "Расскажи, чем интересен Санкт-Петербург"}
+    ]
+)</code></pre>
+                        <p>Ответ будет содержательным, живым, но не уходящим в фантазии.</p>
+                        <p><strong>Пример 3. Высокая температура (0.8) для креативных идей</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=400,
+    temperature=0.8,
+    messages=[
+        {"role": "user", "content": "Придумай 3 необычных экскурсионных маршрута по Санкт-Петербургу"}
+    ]
+)</code></pre>
+                        <p>Ответы будут различными при каждом запуске, могут содержать неожиданные, креативные идеи.</p>
+                        
+                        <h4>Выводы по лекции 3</h4>
+                        <ul>
+                            <li>Параметр temperature управляет случайностью генерации: 0.0-0.2 — детерминированные ответы (факты, код), 0.3-0.5 — сбалансированные (диалоги), 0.6-0.8 — креативные (генерация идей).</li>
+                            <li>Параметр top_p (nucleus sampling) ограничивает набор токенов для выбора суммой вероятностей, исключая маловероятные варианты.</li>
+                            <li>Не рекомендуется использовать temperature и top_p одновременно. Для учебных задач достаточно настройки только temperature.</li>
+                            <li>Чем выше требуемая точность ответа, тем ниже должна быть температура. Чем выше требуемая креативность, тем выше температура.</li>
+                        </ul>
+                        
+                        <div class="lab-buttons-section">
+                            <div class="lab-buttons-title"><i class="fas fa-flask"></i> Лабораторные работы к лекции:</div>
+                            <div class="lab-buttons">
+                                <a href="lab4.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №4: Управление случайностью (temperature и top_p)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЛЕКЦИЯ 4 -->
+                <div class="lecture-card">
+                    <div class="lecture-header" onclick="toggleLecture(this)">
+                        <div class="lecture-number">04</div>
+                        <div class="lecture-title"><h3>Лекция 4. Многооборотные диалоги и системные промпты</h3><p>Отсутствие встроенной памяти, структура диалога, параметр system</p></div>
+                        <div class="lecture-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="lecture-content">
+                        <h4>Цель лекции:</h4>
+                        <p>Изучить методы организации многооборотных диалогов с сохранением истории сообщений и способы задания долгосрочных инструкций через системный промпт.</p>
+                        
+                        <h4>Ключевые вопросы:</h4>
+                        <ol>
+                            <li>Отсутствие встроенной памяти в Claude API и необходимость явной передачи истории.</li>
+                            <li>Структура многооборотного диалога: чередование ролей user и assistant.</li>
+                            <li>Практическая реализация консольного чат-бота с сохранением истории.</li>
+                            <li>Параметр system и его отличие от сообщений пользователя.</li>
+                            <li>Правила составления эффективных системных промптов.</li>
+                            <li>Комбинирование истории диалога, температуры и системного промпта.</li>
+                        </ol>
+                        
+                        <h4>1. Многооборотный диалог: сохранение истории</h4>
+                        <p>Claude не сохраняет состояние между вызовами API. Каждый вызов <code>client.messages.create()</code> является независимым актом. Для организации многооборотного диалога разработчик должен самостоятельно хранить историю сообщений и передавать её в параметре <code>messages</code> при каждом запросе.</p>
+                        <p><strong>Структура многооборотного диалога:</strong></p>
+                        <pre><code>messages = [
+    {"role": "user", "content": "Привет! Как тебя зовут?"},
+    {"role": "assistant", "content": "Здравствуйте! Меня зовут Клод."},
+    {"role": "user", "content": "Расскажи, что ты умеешь?"},
+    {"role": "assistant", "content": "Я умею отвечать на вопросы, помогать с кодом, анализировать тексты..."},
+    {"role": "user", "content": "А что ты сказал в самом начале?"}
+]</code></pre>
+                        <p>Обязательным требованием является чередование ролей: за сообщением <code>user</code> должен следовать ответ <code>assistant</code>, затем снова <code>user</code> и т.д. Недопустима отправка двух сообщений подряд от <code>user</code> без промежуточного ответа <code>assistant</code>.</p>
+                        <p><strong>Пример программы, ведущей диалог:</strong></p>
+                        <pre><code>import os
+from dotenv import load_dotenv
+import anthropic
+
+load_dotenv()
+client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+# Инициализация пустой истории диалога. Сообщения будут добавляться по мере общения.
+messages = []
+
+print("Чат-бот запущен. Введите 'выход' для завершения.")
+
+while True:
+    user_input = input("Вы: ")
+    if user_input.lower() == "выход":
+        print("До свидания!")
+        break
+    
+    messages.append({"role": "user", "content": user_input})
+    
+    response = client.messages.create(
+        model="claude-3-haiku-20240307",
+        max_tokens=500,
+        temperature=0.5,
+        messages=messages
+    )
+    
+    assistant_reply = response.content[0].text
+    messages.append({"role": "assistant", "content": assistant_reply})
+    print(f"Клод: {assistant_reply}")</code></pre>
+                        
+                        <h4>2. Системный промпт: задание поведения модели</h4>
+                        <p>Параметр <code>system</code> представляет собой особую инструкцию, которая действует на протяжении всей сессии диалога. В отличие от сообщений пользователя, системный промпт не отображается в истории диалога, но модель учитывает его при генерации каждого ответа.</p>
+                        <p><strong>Назначение системного промпта.</strong> Системный промпт позволяет задать желаемое поведение модели — например, стиль общения, тематические ограничения, формат ответов — без необходимости повторять эти требования в каждом сообщении пользователя.</p>
+                        <p><strong>Пример системного промпта:</strong></p>
+                        <pre><code>SYSTEM_PROMPT = """
+Ты — полезный и дружелюбный помощник.
+Отвечай кратко (не более 2-3 предложений).
+Используй только русский язык.
+Если не знаешь ответа, скажи 'Я не знаю'.
+"""</code></pre>
+                        <p><strong>Добавление системного промпта в запрос:</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=500,
+    temperature=0.5,
+    system=SYSTEM_PROMPT,
+    messages=messages
+)</code></pre>
+                        <p><strong>Правила составления эффективного системного промпта:</strong></p>
+                        <ul>
+                            <li>Использование повелительного наклонения («Ты — эксперт», «Отвечай кратко», «Не выдумывай факты»)</li>
+                            <li>Конкретность формулировок (вместо «будь полезным» — «отвечай только на вопросы по программированию»)</li>
+                            <li>Указание формата ответа, если это важно («Каждый ответ начинай со слова \"Отвечая на ваш вопрос:\"»)</li>
+                        </ul>
+                        
+                        <h4>3. Полный пример: чат-бот с системным промптом</h4>
+                        <p>Объединение истории диалога, температуры и системного промпта в полноценном приложении:</p>
+                        <pre><code>import os
+from dotenv import load_dotenv
+import anthropic
+
+load_dotenv()
+client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+SYSTEM_PROMPT = """
+Ты — ассистент по курсу «Искусственный интеллект».
+Ты отвечаешь кратко (2-3 предложения) и только на вопросы по теме ИИ.
+Если вопрос не по теме, вежливо скажи: «Я специализируюсь только на искусственном интеллекте».
+Никогда не выдумывай факты — если не знаешь, скажи «Я не знаю».
+"""
+
+messages = []
+print("AI-ассистент запущен. Задавайте вопросы по искусственному интеллекту.")
+print("Для выхода введите 'выход'.")
+
+while True:
+    user_input = input("Вы: ")
+    if user_input.lower() in ["выход", "quit"]:
+        print("До свидания!")
+        break
+    
+    messages.append({"role": "user", "content": user_input})
+    
+    response = client.messages.create(
+        model="claude-3-haiku-20240307",
+        max_tokens=500,
+        temperature=0.4,
+        system=SYSTEM_PROMPT,
+        messages=messages
+    )
+    
+    assistant_reply = response.content[0].text
+    messages.append({"role": "assistant", "content": assistant_reply})
+    print(f"Ассистент: {assistant_reply}")
+    print("-" * 50)</code></pre>
+                        
+                        <h4>Выводы по лекции 4</h4>
+                        <ul>
+                            <li>Claude не сохраняет состояние между вызовами API. Вся история диалога должна явно храниться и передаваться разработчиком в параметре messages.</li>
+                            <li>Многооборотный диалог строится на чередовании ролей user и assistant. Отправка двух сообщений подряд от одной роли недопустима.</li>
+                            <li>Параметр system задаёт долгосрочные инструкции, определяющие поведение модели на всю сессию диалога. Системный промпт не отображается в истории, но учитывается при каждой генерации.</li>
+                            <li>Эффективный системный промпт должен быть конкретным, использовать повелительное наклонение и при необходимости указывать формат ответа.</li>
+                            <li>Комбинирование истории диалога, системного промпта и температуры позволяет создавать чат-ботов с заданной «личностью» и тематическими ограничениями.</li>
+                        </ul>
+                        
+                        <div class="lab-buttons-section">
+                            <div class="lab-buttons-title"><i class="fas fa-flask"></i> Лабораторные работы к лекции:</div>
+                            <div class="lab-buttons">
+                                <a href="lab5.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №5: Создание многооборотного чат-бота с системным промптом</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЛЕКЦИЯ 5 -->
+                <div class="lecture-card">
+                    <div class="lecture-header" onclick="toggleLecture(this)">
+                        <div class="lecture-number">05</div>
+                        <div class="lecture-title"><h3>Лекция 5. Структурирование запросов с XML-тегами</h3><p>XML-разметка, основные теги, разделение ответственности с системным промптом</p></div>
+                        <div class="lecture-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="lecture-content">
+                        <h4>Цель лекции:</h4>
+                        <p>Освоить методы структурирования запросов с использованием XML-тегов для повышения точности и надёжности ответов модели при работе со сложными, многосоставными запросами.</p>
+                        
+                        <h4>Ключевые вопросы:</h4>
+                        <ol>
+                            <li>Причины эффективности XML-разметки в Claude API.</li>
+                            <li>Основные XML-теги: context, question, instructions, example, format.</li>
+                            <li>Правила синтаксиса XML-тегов (парность, вложенность).</li>
+                            <li>Разделение ответственности между системным промптом и XML-тегами.</li>
+                            <li>Полный пример структурированного запроса с несколькими тегами.</li>
+                        </ol>
+                        
+                        <h4>1. Причины эффективности XML-разметки</h4>
+                        <p>По мере усложнения задач возникает потребность в структурировании запросов. Типичный запрос может содержать длинный текст для анализа (контекст), конкретный вопрос, инструкции по форматированию ответа и примеры. Смешение всех этих компонентов в одном абзаце снижает точность ответа модели.</p>
+                        <p><strong>XML-теги</strong> представляют собой средство разметки текста, которое Claude понимает особенно хорошо. Архитектура модели оптимизирована для работы с XML-подобной разметкой, поскольку обучающие данные Anthropic включали значительное количество структурированных документов.</p>
+                        <p><strong>Определение XML-тегов.</strong> XML-теги — это парные конструкции вида <code>&lt;название&gt;содержимое&lt;/название&gt;</code>. Примеры: <code>&lt;question&gt;Какой цвет у неба?&lt;/question&gt;</code>, <code>&lt;context&gt;Небо обычно голубое&lt;/context&gt;</code>, <code>&lt;instructions&gt;Ответь кратко&lt;/instructions&gt;</code>.</p>
+                        <p><strong>Преимущества использования XML:</strong></p>
+                        <ul>
+                            <li>Разделение различных частей запроса (инструкции отделяются от контекста, контекст — от вопроса)</li>
+                            <li>Снижение вероятности ошибок интерпретации</li>
+                            <li>Возможность вложения тегов друг в друга</li>
+                            <li>Улучшение качества обработки длинных и сложных запросов</li>
+                        </ul>
+                        <p><strong>Сравнение подходов.</strong> Запрос без структуры: «Вот текст статьи про чёрные дыры. [длинный текст] Ответь на вопрос: что такое горизонт событий? Ответ должен быть кратким. Используй только информацию из текста.» Модель вынуждена самостоятельно выделять компоненты запроса.</p>
+                        <p>Структурированный запрос с XML:</p>
+                        <pre><code>&lt;context&gt;
+[длинный текст статьи про чёрные дыры]
+&lt;/context&gt;
+&lt;question&gt;
+Что такое горизонт событий?
+&lt;/question&gt;
+&lt;instructions&gt;
+Ответь кратко, не более двух предложений. Используй только информацию из тега context.
+&lt;/instructions&gt;</code></pre>
+                        
+                        <h4>2. Основные XML-теги и правила использования</h4>
+                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden;">
+            <thead>
+                <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.2);">Тег</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.2);">Назначение</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.2);">Пример использования</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">&lt;context&gt;</code></td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Контекстная информация, документ, текст для анализа. Содержимое этого тега модель воспринимает как материал для ответа.</td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">&lt;context&gt;Текст статьи...&lt;/context&gt;</code></td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">&lt;question&gt;</code></td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Вопрос, на который модель должна ответить. Обычно располагается после контекста.</td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">&lt;question&gt;Что такое API?&lt;/question&gt;</code></td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">&lt;instructions&gt;</code></td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Инструкции о том, как отвечать (формат, стиль, ограничения по длине).</td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">&lt;instructions&gt;Ответь кратко&lt;/instructions&gt;</code></td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">&lt;example&gt;</code></td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Пример правильного ответа. Используется для обучения модели на месте (few-shot). Модель видит пример и стремится отвечать в том же стиле.</td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">&lt;example&gt;Вопрос: ... Ответ: ...&lt;/example&gt;</code></td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">&lt;format&gt;</code></td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);">Указание формата ответа (например, «маркированный список», «JSON», «одна строка»).</td>
+                    <td style="padding: 12px; border: 1px solid rgba(255,255,255,0.1);"><code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">&lt;format&gt;Ответ в формате JSON&lt;/format&gt;</code></td>
+                </tr>
+            </tbody>
+        </table>
+                        <p><strong>Синтаксические правила:</strong></p>
+                        <ul>
+                            <li>Каждый открывающий тег <code>&lt;tag&gt;</code> должен иметь парный закрывающий <code>&lt;/tag&gt;</code></li>
+                            <li>Теги не должны пересекаться: правильно <code>&lt;a&gt;&lt;b&gt;текст&lt;/b&gt;&lt;/a&gt;</code>, неправильно <code>&lt;a&gt;&lt;b&gt;текст&lt;/a&gt;&lt;/b&gt;</code></li>
+                            <li>Регистр тегов имеет значение (рекомендуется нижний регистр)</li>
+                        </ul>
+                        <p><strong>Пример структурированного запроса с несколькими тегами:</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=800,
+    temperature=0.3,
+    messages=[
+        {"role": "user", "content": """
+&lt;context&gt;
+[Здесь вставляется полный текст научной статьи или главы учебника]
+&lt;/context&gt;
+&lt;example&gt;
+Для предыдущей статьи вывод был оформлен так:
+- Основная идея: [идея]
+- Аргументы: [список]
+- Вывод: [вывод]
+&lt;/example&gt;
+&lt;question&gt;
+Выдели основную идею, три ключевых аргумента и вывод из статьи выше.
+&lt;/question&gt;
+&lt;format&gt;
+Ответ оформи в точности как в примере, с маркированным списком.
+&lt;/format&gt;
+&lt;instructions&gt;
+Не добавляй никаких пояснений вне указанного формата.
+Если информации недостаточно, напиши "не указано".
+&lt;/instructions&gt;
+"""}
+    ]
+)</code></pre>
+                        
+                        <h4>3. Комбинирование XML с системным промптом</h4>
+                        <p>XML-структурирование и системный промпт дополняют друг друга, а не заменяют. Рекомендуется следующее разделение ответственности:</p>
+                        <ul>
+                            <li><strong>Параметр system</strong> — для глобальных, долгосрочных инструкций, действующих на весь диалог: «Ты — ассистент профессора по физике», «Отвечай только на русском языке», «Будь вежливым».</li>
+                            <li><strong>XML-теги внутри user</strong> — для конкретного запроса: <code>&lt;context&gt;</code> с текстом документа, <code>&lt;question&gt;</code> с вопросом, <code>&lt;format&gt;</code> с требованием к формату.</li>
+                        </ul>
+                        <p><strong>Полный пример (комбинация system и XML):</strong></p>
+                        <pre><code>SYSTEM_PROMPT = """
+Ты — ассистент преподавателя по курсу «История искусств».
+Ты отвечаешь только на вопросы, связанные с историей искусства.
+Если вопрос не по теме, вежливо сообщаешь: «Я специализируюсь только на истории искусства».
+Отвечай на русском языке."""
+
+response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=1000,
+    temperature=0.2,
+    system=SYSTEM_PROMPT,
+    messages=[
+        {"role": "user", "content": """
+&lt;context&gt;
+Импрессионизм — это направление в живописи, возникшее во Франции в 1860-х годах.
+Художники-импрессионисты стремились передать мимолётные впечатления, игру света и тени.
+Ключевые представители: Клод Моне, Пьер Огюст Ренуар, Эдгар Дега.
+&lt;/context&gt;
+&lt;question&gt;
+Назови трёх главных представителей импрессионизма.
+&lt;/question&gt;
+&lt;format&gt;
+Ответ в виде маркированного списка, только имена.
+&lt;/format&gt;
+&lt;instructions&gt;
+Не добавляй пояснений. Если не уверен, напиши "не знаю".
+&lt;/instructions&gt;
+"""}
+    ]
+)</code></pre>
+                        
+                        <h4>Выводы по лекции 5</h4>
+                        <ul>
+                            <li>XML-теги обеспечивают эффективное структурирование запросов, которое Claude понимает лучше, чем многие другие LLM, благодаря особенностям обучающих данных.</li>
+                            <li>Основные теги: &lt;context&gt; (контекстная информация), &lt;question&gt; (вопрос), &lt;instructions&gt; (инструкции), &lt;example&gt; (примеры), &lt;format&gt; (формат ответа).</li>
+                            <li>Синтаксические правила XML: каждый тег должен быть парным, теги не должны пересекаться.</li>
+                            <li>XML-структурирование не заменяет системный промпт, а дополняет его: system задаёт глобальное поведение, XML-теги структурируют конкретный запрос.</li>
+                            <li>Правильное использование XML-разметки повышает точность ответов при работе со сложными, многосоставными запросами.</li>
+                        </ul>
+                        
+                        <div class="lab-buttons-section">
+                            <div class="lab-buttons-title"><i class="fas fa-flask"></i> Лабораторные работы к лекции:</div>
+                            <div class="lab-buttons">
+                                <a href="lab6.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №6: Структурирование запросов с XML-тегами</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЛЕКЦИЯ 6 -->
+                <div class="lecture-card">
+                    <div class="lecture-header" onclick="toggleLecture(this)">
+                        <div class="lecture-number">06</div>
+                        <div class="lecture-title"><h3>Лекция 6. Chain-of-Thought и решение сложных задач</h3><p>Определение CoT, реализация, few-shot обучение с рассуждением</p></div>
+                        <div class="lecture-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="lecture-content">
+                        <h4>Цель лекции:</h4>
+                        <p>Изучить технику Chain-of-Thought (цепочка рассуждений) для решения многошаговых логических, математических и аналитических задач, а также освоить комбинирование CoT с few-shot обучением.</p>
+                        
+                        <h4>Ключевые вопросы:</h4>
+                        <ol>
+                            <li>Определение Chain-of-Thought (CoT) и механизм повышения точности.</li>
+                            <li>Сравнение прямой генерации и генерации с рассуждением.</li>
+                            <li>Реализация CoT через инструкцию в запросе и через XML-тег &lt;thinking&gt;.</li>
+                            <li>Влияние CoT на потребление токенов и рекомендации по настройке max_tokens.</li>
+                            <li>Few-shot обучение в сочетании с Chain-of-Thought.</li>
+                            <li>Количественная оценка повышения точности для различных типов задач.</li>
+                        </ol>
+                        
+                        <h4>1. Определение Chain-of-Thought</h4>
+                        <p>Существует класс задач, где прямая генерация ответа моделью часто приводит к ошибкам. К таким задачам относятся многошаговые арифметические вычисления, логические выводы, многокритериальный анализ. Например, при запросе «У Маши было 15 яблок. Она отдала треть Пете, а затем купила ещё 5. Сколько яблок у Маши?» модель может дать неверный ответ, пропустив промежуточные вычисления.</p>
+                        <p><strong>Chain-of-Thought (CoT)</strong> — это техника промпт-инжиниринга, при которой модель инструктируется явно записывать промежуточные шаги рассуждения перед выдачей финального ответа. Генерация рассуждения вслух заставляет модель последовательно связывать шаги, проверять промежуточные выводы и снижает вероятность ошибок «прыжка через этапы».</p>
+                        
+                        <p>Запрос с CoT:</p>
+                        <pre><code>Реши задачу по шагам:
+Шаг 1: Посчитай, сколько яблок Маша отдала Пете (треть от 15).
+Шаг 2: Вычти это количество из начального.
+Шаг 3: Прибавь 5 купленных яблок.
+Шаг 4: Напиши финальный ответ.</code></pre>
+                        <p>Модель сгенерирует: «Шаг 1: Треть от 15 = 5. Шаг 2: 15 - 5 = 10. Шаг 3: 10 + 5 = 15. Ответ: 15 яблок».</p>
+						
+						<img src="images/CoT.png" style="max-width: 100%; border-radius: 10px; margin: 15px 0;">
+                        
+                        <h4>2. Реализация CoT в Claude API</h4>
+                        <p><strong>Способ 1. Инструкция в запросе.</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=1000,
+    temperature=0.2,
+    messages=[
+        {"role": "user", "content": """
+Задача: В корзине было 30 красных и 20 синих шаров.
+Забрали 10 красных и добавили 15 синих.
+Сколько теперь шаров каждого цвета?
+
+Пожалуйста, сначала опиши свои рассуждения шаг за шагом, а затем дай ответ.
+Каждый шаг начинай с номера (1., 2., 3., ...).
+В конце напиши "Ответ: Красных: X, Синих: Y".
+"""}
+    ]
+)</code></pre>
+                        <p><strong>Способ 2. Использование XML-тега <code>&lt;thinking&gt;</code>.</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=1000,
+    temperature=0.2,
+    messages=[
+        {"role": "user", "content": """
+&lt;question&gt;
+Есть три коробки: в одной только красные шары, в одной только синие, в одной смесь.
+На каждой коробке есть надпись, но все надписи ложные.
+Надписи: "Красные", "Синие", "Смесь".
+Как определить содержимое всех коробок, вынув всего один шар из одной коробки?
+&lt;/question&gt;
+&lt;instructions&gt;
+Сначала напиши свои рассуждения в теге &lt;thinking&gt;.
+Затем напиши финальный ответ в теге &lt;answer&gt;.
+Рассуждай логическими шагами.
+&lt;/instructions&gt;
+"""}
+    ]
+)</code></pre>
+                        <p><strong>Важное замечание о токенах.</strong> CoT требует увеличения лимита токенов, поскольку модель генерирует не только ответ, но и промежуточные рассуждения. Рекомендуется устанавливать <code>max_tokens = 1000-2000</code> для сложных задач. При недостатке токенов рассуждение может быть обрезано.</p>
+                        
+                        <h4>3. Few-shot обучение с рассуждением</h4>
+                        <p><strong>Few-shot</strong> — техника, при которой модели предоставляются несколько примеров правильных ответов перед формулировкой основного вопроса. В сочетании с CoT few-shot демонстрирует высокую эффективность, особенно когда требуется строго определённый формат ответа.</p>
+                        <p><strong>Пример few-shot с CoT:</strong></p>
+                        <pre><code>response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=800,
+    temperature=0.2,
+    messages=[
+        {"role": "user", "content": """
+Вот примеры решения задач с рассуждением. Внимательно изучи их формат.
+
+Пример 1:
+Вопрос: У Пети было 10 конфет. Он съел 3, потом мама дала ещё 5. Сколько стало?
+Рассуждение:
+1. Было 10 конфет.
+2. Съел 3 → 10 - 3 = 7.
+3. Мама дала 5 → 7 + 5 = 12.
+Ответ: 12 конфет.
+
+Пример 2:
+Вопрос: В аквариуме 15 рыбок. 6 уплыли, потом приплыли 4. Сколько осталось?
+Рассуждение:
+1. Было 15.
+2. 6 уплыли → 15 - 6 = 9.
+3. 4 приплыли → 9 + 4 = 13.
+Ответ: 13 рыбок.
+
+Теперь реши свою задачу тем же способом. Скопируй формат: сначала "Рассуждение:" с шагами, затем "Ответ:".
+
+Вопрос: В классе 25 учеников. 7 ушли на олимпиаду, потом пришли 3 новых. Сколько учеников стало?
+
+Рассуждение:
+"""}
+    ]
+)</code></pre>
+                        <p>Модель продолжит шаблон и сгенерирует:</p>
+                        <pre><code>1. Было 25 учеников.
+2. 7 ушли → 25 - 7 = 18.
+3. 3 пришли → 18 + 3 = 21.
+Ответ: 21 ученик.</code></pre>
+                        <p><strong>Эффективность few-shot + CoT.</strong> Модель не просто получает инструкцию рассуждать, но и видит образец правильного рассуждения, включая структуру, формат и стиль. Это особенно полезно для задач со строго определённым форматом ответа (отчёты, извлечение данных, классификация).</p>
+                        
+                        <h4>Выводы по лекции 6</h4>
+                        <ul>
+                            <li>Chain-of-Thought (CoT) — техника, требующая от модели явной генерации промежуточных шагов рассуждения перед финальным ответом.</li>
+                            <li>CoT повышает точность на многошаговых задачах (арифметика, логика, анализ), снижая вероятность ошибок, связанных с пропуском промежуточных этапов.</li>
+                            <li>Реализация CoT возможна через прямое указание в инструкции или через XML-тег &lt;thinking&gt;.</li>
+                            <li>При использовании CoT необходимо увеличивать max_tokens (рекомендуется 1000-2000), так как рассуждения занимают дополнительное место.</li>
+                            <li>Few-shot обучение в сочетании с CoT даёт наилучшие результаты: модель копирует структуру и формат из предоставленных примеров.</li>
+                            <li>CoT повышает точность с 50-60% до 85-90% на сложных логических и аналитических задачах.</li>
+                        </ul>
+                        
+                        <div class="lab-buttons-section">
+                            <div class="lab-buttons-title"><i class="fas fa-flask"></i> Лабораторные работы к лекции:</div>
+                            <div class="lab-buttons">
+                                <a href="lab7.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №7: Решение сложных задач с Chain-of-Thought</a>
+                                <a href="lab8.html" class="lab-link-btn"><i class="fas fa-arrow-right"></i> Лаб. работа №8: Few-shot обучение в сочетании с CoT</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        function toggleLecture(header) {
+            const card = header.parentElement;
+            card.classList.toggle('active');
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const themeToggle = document.getElementById('themeToggle');
+            const isDark = document.body.classList.contains('dark-theme');
+            
+            if (isDark) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-theme');
+                if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        loadTheme();
+    </script>
+</body>
+</html>

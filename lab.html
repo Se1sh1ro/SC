@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторные работы | Claude API Course</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* ===== СВЕТЛАЯ ТЕМА (по умолчанию) ===== */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa, #eef2f7); 
+            min-height: 100vh; 
+            color: #1a1a2e; 
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* ===== ТЁМНАЯ ТЕМА ===== */
+        body.dark-theme {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+        }
+        
+        body.dark-theme .lab-card {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-theme .lab-card:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        
+        body.dark-theme .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        body.dark-theme header {
+            background: rgba(15, 12, 41, 0.95);
+            border-bottom-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-theme .logo i {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme nav a {
+            color: #fff;
+        }
+        
+        body.dark-theme .page-header h1 {
+            background: linear-gradient(135deg, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme footer {
+            border-top-color: rgba(255,255,255,0.05);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        header { padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.1); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); transition: all 0.3s; }
+        header .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo i { font-size: 2.2rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logo h1 { font-size: 1.5rem; font-weight: 700; }
+        .logo p { font-size: 0.7rem; opacity: 0.7; }
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { color: #1a1a2e; text-decoration: none; font-weight: 500; transition: all 0.3s; }
+        nav a:hover { color: #667eea; }
+        nav a.active { color: #667eea; position: relative; }
+        nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 2px; background: linear-gradient(135deg, #667eea, #764ba2); }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: all 0.3s;
+            color: #1a1a2e;
+        }
+        
+        body.dark-theme .theme-toggle {
+            color: #fff;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(0,0,0,0.1);
+            transform: scale(1.05);
+        }
+        
+        .page-header { text-align: center; padding: 40px 0 30px; }
+        .page-header h1 { font-size: 2.5rem; background: linear-gradient(135deg, #1a1a2e, #667eea); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .labs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; padding: 20px 0 60px; }
+        .lab-card { background: white; border-radius: 20px; padding: 25px; border: 1px solid #eee; transition: all 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .lab-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .lab-number { width: 45px; height: 45px; background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 15px; color: white; }
+        .lab-card h3 { font-size: 1.2rem; margin-bottom: 10px; }
+        .lab-card p { opacity: 0.7; line-height: 1.5; margin-bottom: 15px; font-size: 0.9rem; }
+        .lecture-ref { display: inline-block; background: rgba(102,126,234,0.15); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; margin-bottom: 15px; color: #667eea; }
+        .btn-lab { display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 25px; font-weight: 600; font-size: 0.85rem; transition: all 0.3s; }
+        .btn-lab:hover { transform: translateX(5px); }
+        
+        footer { padding: 40px 0; border-top: 1px solid rgba(0,0,0,0.05); text-align: center; }
+        footer p { opacity: 0.5; font-size: 0.85rem; }
+        
+        @media (max-width: 768px) { 
+            header .container { flex-direction: column; text-align: center; } 
+            nav ul { justify-content: center; gap: 1.5rem; } 
+            .labs-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><i class="fas fa-brain"></i><div><h1>Claude API </h1><p>Программирование приложений на основе больших языковых моделей </p></div></div>
+            <nav><ul><li><a href="index.html" class="active">Главная</a></li><li><a href="lect.html">Лекции</a></li><li><a href="lab.html">Лабораторные</a></li><li><a href="test.html">Тест</a></li></ul></nav>
+			<button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="page-header"><h1>💻 Лабораторные работы</h1><p>8 практических работ для изучения Claude API</p></div>
+            <div class="labs-grid">
+                <div class="lab-card"><div class="lab-number">№1</div><span class="lecture-ref">📖 Лекция №1</span><h3>Регистрация и настройка среды разработки</h3><p>Регистрация в Anthropic Console, получение API-ключа, настройка виртуального окружения.</p><a href="lab1.html" class="btn-lab">Перейти к работе →</a></div>
+                <div class="lab-card"><div class="lab-number">№2</div><span class="lecture-ref">📖 Лекция №1</span><h3>Первый запрос к Claude API</h3><p>Отправка синхронного запроса, обработка ответа, анализ метаданных.</p><a href="lab2.html" class="btn-lab">Перейти к работе →</a></div>
+                <div class="lab-card"><div class="lab-number">№3</div><span class="lecture-ref">📖 Лекция №2</span><h3>Эксперименты с model, max_tokens и messages</h3><p>Сравнение моделей Haiku и Sonnet, управление длиной ответа, история диалога.</p><a href="lab3.html" class="btn-lab">Перейти к работе →</a></div>
+                <div class="lab-card"><div class="lab-number">№4</div><span class="lecture-ref">📖 Лекция №3</span><h3>Управление случайностью (temperature и top_p)</h3><p>Влияние температуры на креативность, эксперименты с top_p, рекомендации.</p><a href="lab4.html" class="btn-lab">Перейти к работе →</a></div>
+                <div class="lab-card"><div class="lab-number">№5</div><span class="lecture-ref">📖 Лекция №4</span><h3>Создание многооборотного чат-бота</h3><p>Сохранение истории диалога, системные промпты, ограничение тематики.</p><a href="lab5.html" class="btn-lab">Перейти к работе →</a></div>
+                <div class="lab-card"><div class="lab-number">№6</div><span class="lecture-ref">📖 Лекция №5</span><h3>Структурирование запросов с XML-тегами</h3><p>Использование тегов context, question, format, примеры, JSON-ответы.</p><a href="lab6.html" class="btn-lab">Перейти к работе →</a></div>
+                <div class="lab-card"><div class="lab-number">№7</div><span class="lecture-ref">📖 Лекция №6</span><h3>Решение сложных задач с Chain-of-Thought</h3><p>Арифметические и логические задачи, пошаговое рассуждение, тег thinking.</p><a href="lab7.html" class="btn-lab">Перейти к работе →</a></div>
+                <div class="lab-card"><div class="lab-number">№8</div><span class="lecture-ref">📖 Лекция №6</span><h3>Few-shot обучение в сочетании с CoT</h3><p>Примеры с рассуждением, копирование формата, оптимизация количества примеров.</p><a href="lab8.html" class="btn-lab">Перейти к работе →</a></div>
+            </div>
+        </div>
+    </main>
+	<script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const themeToggle = document.getElementById('themeToggle');
+            const isDark = document.body.classList.contains('dark-theme');
+            
+            if (isDark) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-theme');
+                if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        loadTheme();
+    </script>
+
+
+</body>
+</html>

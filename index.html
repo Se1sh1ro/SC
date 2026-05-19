@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude API Course | Главная</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* ===== СВЕТЛАЯ ТЕМА (по умолчанию) ===== */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa, #eef2f7); 
+            min-height: 100vh; 
+            color: #1a1a2e; 
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* ===== ТЁМНАЯ ТЕМА ===== */
+        body.dark-theme {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+        }
+        
+        body.dark-theme .feature-card,
+        body.dark-theme .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-theme .feature-card p,
+        body.dark-theme .stat-card .stat-label {
+            opacity: 0.7;
+        }
+        
+        body.dark-theme .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        body.dark-theme header {
+            background: rgba(15, 12, 41, 0.95);
+            border-bottom-color: rgba(255,255,255,0.1);
+        }
+        
+        body.dark-theme .logo i {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme nav a {
+            color: #fff;
+        }
+        
+        body.dark-theme .hero h1 {
+            background: linear-gradient(135deg, #fff, #a78bfa, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme .section-title {
+            background: linear-gradient(135deg, #fff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme .stat-number {
+            background: linear-gradient(135deg, #a78bfa, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-theme footer {
+            border-top-color: rgba(255,255,255,0.05);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        header { padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.1); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); transition: all 0.3s; }
+        header .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo i { font-size: 2.2rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logo h1 { font-size: 1.5rem; font-weight: 700; }
+        .logo p { font-size: 0.7rem; opacity: 0.7; }
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { color: #1a1a2e; text-decoration: none; font-weight: 500; transition: all 0.3s; }
+        nav a:hover { color: #667eea; }
+        nav a.active { color: #667eea; position: relative; }
+        nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 100%; height: 2px; background: linear-gradient(135deg, #667eea, #764ba2); }
+        
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: all 0.3s;
+            color: #1a1a2e;
+        }
+        
+        body.dark-theme .theme-toggle {
+            color: #fff;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(0,0,0,0.1);
+            transform: scale(1.05);
+        }
+        
+        .hero { padding: 80px 0 60px; text-align: center; }
+        .badge { display: inline-block; background: rgba(102,126,234,0.15); border: 1px solid rgba(102,126,234,0.3); padding: 6px 16px; border-radius: 40px; font-size: 0.8rem; margin-bottom: 24px; color: #667eea; }
+        body.dark-theme .badge { background: rgba(102,126,234,0.2); border-color: rgba(102,126,234,0.4); color: #a78bfa; }
+        .hero h1 { font-size: 3rem; font-weight: 800; line-height: 1.2; margin-bottom: 20px; background: linear-gradient(135deg, #1a1a2e, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .hero-description { font-size: 1.2rem; opacity: 0.7; margin-bottom: 40px; max-width: 700px; margin: 0 auto 40px; }
+        
+        .hero-buttons { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 60px; }
+        .btn { display: inline-flex; align-items: center; gap: 12px; padding: 14px 36px; font-size: 1rem; font-weight: 600; border-radius: 50px; text-decoration: none; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(102,126,234,0.6); }
+        .btn-secondary { background: rgba(0,0,0,0.05); color: #1a1a2e; border: 1px solid rgba(0,0,0,0.1); }
+        .btn-secondary:hover { background: rgba(0,0,0,0.1); transform: translateY(-3px); }
+        .btn-accent { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+        .btn-accent:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(245,87,108,0.5); }
+        
+        .stats { padding: 40px 0; }
+        .stats-grid { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+        .stat-card { background: white; border-radius: 24px; padding: 24px 32px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.3s; min-width: 160px; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .stat-label { font-size: 0.85rem; opacity: 0.6; margin-top: 8px; }
+        
+        .features { padding: 60px 0; }
+        .section-title { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 50px; background: linear-gradient(135deg, #1a1a2e, #667eea); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .feature-card { background: white; border-radius: 24px; padding: 30px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .feature-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .feature-icon { width: 70px; height: 70px; background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15)); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; color: #667eea; }
+        .feature-card h3 { font-size: 1.3rem; margin-bottom: 12px; }
+        .feature-card p { opacity: 0.6; line-height: 1.5; }
+        
+        footer { padding: 40px 0; border-top: 1px solid rgba(0,0,0,0.05); text-align: center; }
+        footer p { opacity: 0.5; font-size: 0.85rem; }
+        
+        @media (max-width: 768px) {
+            header .container { flex-direction: column; text-align: center; }
+            nav ul { justify-content: center; gap: 1.5rem; }
+            .hero h1 { font-size: 2rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><i class="fas fa-brain"></i><div><h1>Claude API</h1></div></div>
+            <nav><ul><li><a href="index.html" class="active">Главная</a></li><li><a href="lect.html">Лекции</a></li><li><a href="lab.html">Лабораторные</a></li><li><a href="test.html">Тест</a></li></ul></nav>
+			<button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <span class="badge"><i class="fas fa-graduation-cap"></i> Учебно-методический комплекс</span>
+                <h1>Программирование приложений <span style="background: linear-gradient(135deg, #a78bfa, #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent;">на основе больших</span><br> языковых моделей</h1>
+				<h2 class="section-title">📖 О курсе</h2>
+                <p class="hero-description">Курс состоит из 6 лекций и 8 лабораторных работ. Вы изучите основы работы с Claude API, принципы настройки виртуального окружения и получения API-ключа, научитесь управлять параметрами генерации (model, max_tokens, temperature, top_p), создавать многооборотные диалоги с сохранением истории, использовать системные промпты для задания ролевого поведения и структурировать запросы с XML-тегами</p>
+                <div class="hero-buttons">
+                    <a href="lect.html" class="btn btn-primary"><i class="fas fa-book-open"></i> Лекции</a>
+                    <a href="lab.html" class="btn btn-secondary"><i class="fas fa-flask"></i> Лабораторные</a>
+                    <a href="test.html" class="btn btn-accent"><i class="fas fa-question-circle"></i> Тест</a>
+                </div>
+            </div>
+        </section>        
+        <section class="features">
+            <div class="container">
+                
+                <div class="features-grid">
+                    <div class="feature-card"><div class="feature-icon"><i class="fas fa-history"></i></div><h3>6 лекций</h3><p>От установки Claude API до продвинутых техник Chain-of-Thought</p></div>
+                    <div class="feature-card"><div class="feature-icon"><i class="fas fa-laptop-code"></i></div><h3>8 лабораторных работ</h3><p>Практическая работа с API, температурой, диалогами, XML-тегами и CoT</p></div>
+                    
+                </div>
+            </div>
+        </section>
+    </main>
+	<script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const themeToggle = document.getElementById('themeToggle');
+            const isDark = document.body.classList.contains('dark-theme');
+            
+            if (isDark) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-theme');
+                if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+        
+        loadTheme();
+    </script>
+</body>
+</html>
